@@ -1,6 +1,7 @@
 import sys
 
 import requests
+from bs4 import BeautifulSoup
 
 
 def get_html(url):
@@ -19,8 +20,23 @@ def get_html(url):
     return html
 
 
+def parse(html, select):
+    soup = BeautifulSoup(html, 'html.parser')
+    my_titles = soup.select(select)
+
+    data = {}
+
+    for title in my_titles:
+        data[title.text] = title.get('href')
+
+    return data
+
+
 if len(sys.argv) < 3:
     print("python main.py https://daum.net .section_media .panel_bloc")
     exit(1)
 
 html = get_html(sys.argv[1])
+
+data = parse(html, " ".join(sys.argv[2:]))
+print(data)
