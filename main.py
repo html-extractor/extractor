@@ -5,7 +5,7 @@ import requests
 
 def get_html(url):
     # HTTP GET Request
-    req = requests.get('https://media.daum.net/ranking/age/')
+    req = requests.get(url)
 
     # HTML 소스 가져오기
     html = req.text
@@ -19,7 +19,8 @@ def get_html(url):
     return html
 
 
-for arg in sys.argv:
-    print(arg)
+if len(sys.argv) < 3:
+    print("python main.py https://daum.net .section_media .panel_bloc")
+    exit(1)
 
-print(get_html("https://media.daum.net/ranking/age/"))
+html = get_html(sys.argv[1])
