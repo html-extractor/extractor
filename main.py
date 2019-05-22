@@ -1,3 +1,4 @@
+import re
 import sys
 from pprint import pprint
 
@@ -28,7 +29,9 @@ def parse(html, select):
     data = {}
 
     for parse_data in parse_datas:
-        data[parse_data.text.strip()] = parse_data.get('href')
+        title = parse_data.text.strip().replace("\n", " ")
+        title = re.sub(r" +", " ", title)
+        data[title] = parse_data.get('href')
 
     return data
 
