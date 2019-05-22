@@ -4,8 +4,14 @@ import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-url = 'http://v.media.daum.net/v/20170615203441266'
+import sys
 
+
+
+#url = 'http://v.media.daum.net/v/20170615203441266'
+
+#인자로 url 받기
+url = sys.argv[1] 
 
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
@@ -16,7 +22,6 @@ options.add_argument("lang=ko_KR")
 
 #드라이버
 driver = webdriver.Chrome('/Users/CAU/source/repos/extractor/chromedriver_win32/chromedriver.exe', chrome_options=options)
-#driver = webdriver.PhantomJS('/Users/CAU/source/repos/extractor/phantomjs-2.1.1-windows/bin/phantomjs')
 
 driver.execute_script("Object.defineProperty(navigator, 'plugins', {get: function() {return[1, 2, 3, 4, 5]}})")
 # lanuages 속성을 업데이트해주기
@@ -25,12 +30,23 @@ driver.execute_script("Object.defineProperty(navigator, 'languages', {get: funct
 
 driver.get(url)
 
-#driver.get('http://v.media.daum.net/v/20170615203441266')
 driver.implicitly_wait(3)
 
 html = driver.page_source
 soup = BeautifulSoup(html, 'html.parser')
 
+#parameter 인자 받기
+selector = sys.argv[3]
+try:
+    notices = soup.select(selector)
+except :
+        print("error")
+else :
+    for i in notices :
+        print(i)
+
+#수동입력
+"""
 while True:
     #selector address
     print("Address 입력")
@@ -45,4 +61,4 @@ while True:
         for i in notices :
             print(i)
         print('\n')
-    
+"""
