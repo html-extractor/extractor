@@ -1,4 +1,5 @@
 import sys
+from pprint import pprint
 
 import requests
 from bs4 import BeautifulSoup
@@ -22,12 +23,12 @@ def get_html(url):
 
 def parse(html, select):
     soup = BeautifulSoup(html, 'html.parser')
-    my_titles = soup.select(select)
+    parse_datas = soup.select(select)
 
     data = {}
 
-    for title in my_titles:
-        data[title.text] = title.get('href')
+    for parse_data in parse_datas:
+        data[parse_data.text.strip()] = parse_data.get('href')
 
     return data
 
@@ -39,4 +40,4 @@ if len(sys.argv) < 3:
 html = get_html(sys.argv[1])
 
 data = parse(html, " ".join(sys.argv[2:]))
-print(data)
+pprint(data)
