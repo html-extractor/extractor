@@ -38,6 +38,9 @@ if len(sys.argv) < 3:
     exit(1)
 
 html = get_html(sys.argv[1])
+css_selector = sys.argv[2:]
+if css_selector[-1] != 'a':
+    css_selector.append('a')
 
-data = parse(html, " ".join(sys.argv[2:]))
+data = parse(html, " ".join(css_selector))
 pprint(data)
