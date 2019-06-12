@@ -26,12 +26,12 @@ def parse(html, select):
     soup = BeautifulSoup(html, 'html.parser')
     parse_datas = soup.select(select)
 
-    data = {}
+    data = []
 
     for parse_data in parse_datas:
         title = parse_data.text.strip().replace("\n", " ")
         title = re.sub(r" +", " ", title)
-        data[title] = parse_data.get('href')
+        data.append({'title': title, 'href': parse_data.get('href')})
 
     return data
 
