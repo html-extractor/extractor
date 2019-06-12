@@ -1,5 +1,5 @@
+import argparse
 import re
-import sys
 from pprint import pprint
 
 import requests
@@ -36,12 +36,17 @@ def parse(html, select):
     return data
 
 
-if len(sys.argv) < 3:
-    print("python main.py https://daum.net .section_media .panel_bloc")
-    exit(1)
+parser = argparse.ArgumentParser(description='CSS selector-based crawling.')
+parser.add_argument('address', metavar='address', nargs=1, help='site address to crawl')
+parser.add_argument('-s', '--selector', required=True, metavar='selector', nargs='+', help='css selector')
+parser.add_argument('-f', '--format', metavar='format', nargs='?', default="json")
 
-html = get_html(sys.argv[1])
-css_selector = sys.argv[2:]
+# parser.print_help()
+
+args = parser.parse_args()
+
+html = get_html(args.address[0])
+css_selector = args.selector
 if css_selector[-1] != 'a':
     css_selector.append('a')
 
