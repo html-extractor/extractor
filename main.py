@@ -4,6 +4,7 @@ from pprint import pprint
 
 import requests
 from bs4 import BeautifulSoup
+from feedgen.feed import FeedGenerator
 
 
 def get_html(url):
@@ -33,7 +34,7 @@ def parse(html, select):
         title = re.sub(r" +", " ", title)
         data.append({'title': title, 'link': parse_data.get('href')})
 
-    return data
+    return data, soup
 
 
 parser = argparse.ArgumentParser(description='CSS selector-based crawling.')
@@ -45,10 +46,25 @@ parser.add_argument('-f', '--format', metavar='format', nargs='?', default="json
 
 args = parser.parse_args()
 
-html = get_html(args.address[0])
+address = args.address[0]
+html = get_html(address)
 css_selector = args.selector
 if css_selector[-1] != 'a':
     css_selector.append('a')
 
-data = parse(html, " ".join(css_selector))
-pprint(data)
+data, soup = parse(html, " ".join(css_selector))
+
+format = args.format
+if format == 'json':
+    pprint(data)
+elif format == 'xml' or format == 'rss':
+    fg = FeedGenerator()
+    fg.title(soup.title.string)
+    fg.link(href=address)
+    desc = soup.find('meta', property='og:description')
+    fg.description("-" if desc is None else desc["content"])
+    for d in data:
+        fe = fg.add_entry()
+        fe.title(d['title'])
+        fe.link(href=d['link'])
+    print(fg.rss_str(pretty=True).decode('utf-8'))
