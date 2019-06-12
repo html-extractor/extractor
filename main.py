@@ -31,7 +31,7 @@ def parse(html, select):
     for parse_data in parse_datas:
         title = parse_data.text.strip().replace("\n", " ")
         title = re.sub(r" +", " ", title)
-        data.append({'title': title, 'href': parse_data.get('href')})
+        data.append({'title': title, 'link': parse_data.get('href')})
 
     return data
 
