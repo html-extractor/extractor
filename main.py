@@ -1,9 +1,10 @@
+import argparse
 import re
-import sys
 from pprint import pprint
 
 import requests
 from bs4 import BeautifulSoup
+from feedgen.feed import FeedGenerator
 
 
 def get_html(url):
@@ -26,24 +27,44 @@ def parse(html, select):
     soup = BeautifulSoup(html, 'html.parser')
     parse_datas = soup.select(select)
 
-    data = {}
+    data = []
 
     for parse_data in parse_datas:
         title = parse_data.text.strip().replace("\n", " ")
         title = re.sub(r" +", " ", title)
-        data[title] = parse_data.get('href')
+        data.append({'title': title, 'link': parse_data.get('href')})
 
-    return data
+    return data, soup
 
 
-if len(sys.argv) < 3:
-    print("python main.py https://daum.net .section_media .panel_bloc")
-    exit(1)
+parser = argparse.ArgumentParser(description='CSS selector-based crawling.')
+parser.add_argument('address', metavar='address', nargs=1, help='site address to crawl')
+parser.add_argument('-s', '--selector', required=True, metavar='selector', nargs='+', help='css selector')
+parser.add_argument('-f', '--format', metavar='format', nargs='?', default="json")
 
-html = get_html(sys.argv[1])
-css_selector = sys.argv[2:]
+# parser.print_help()
+
+args = parser.parse_args()
+
+address = args.address[0]
+html = get_html(address)
+css_selector = args.selector
 if css_selector[-1] != 'a':
     css_selector.append('a')
 
-data = parse(html, " ".join(css_selector))
-pprint(data)
+data, soup = parse(html, " ".join(css_selector))
+
+format = args.format
+if format == 'json':
+    pprint(data)
+elif format == 'xml' or format == 'rss':
+    fg = FeedGenerator()
+    fg.title(soup.title.string)
+    fg.link(href=address)
+    desc = soup.find('meta', property='og:description')
+    fg.description("-" if desc is None else desc["content"])
+    for d in data:
+        fe = fg.add_entry()
+        fe.title(d['title'])
+        fe.link(href=d['link'])
+    print(fg.rss_str(pretty=True).decode('utf-8'))
